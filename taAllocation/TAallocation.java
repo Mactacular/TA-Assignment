@@ -1,15 +1,23 @@
 package taAllocation;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 public class TAallocation extends PredicateReader implements TAallocationPredicates {
+
+	long maxlabs = -1;
+	long minlabs = -1;
+	public ArrayList<String> timeslots = new ArrayList<String>();
+	public ArrayList<Course> courses = new ArrayList<Course>();				// list of read in courses
+	public ArrayList<Instructor> instructors = new ArrayList<Instructor>(); // list off read in instructors
+	public ArrayList<TA> tas = new ArrayList<TA>(); // list of read in T.A.s
+	
 	
 	public TAallocation(String name)  {
 		super(name);
 	}
-	
+
 	public static void main(String[] args) {
 		if (args.length == 0) {
 			commandMode(new TAallocation(""));
@@ -88,17 +96,35 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_maxlabs(Long p) {
-		
+		maxlabs = p;
 	}
 
 	@Override
 	public void a_minlabs(Long p) {
-		
+		minlabs = p;
 	}
 
 	@Override
-	public void a_TA(String p) {
-		
+	public void a_TA(String p)
+	{
+		boolean found = false;
+		int i = 0;
+		// checks if the ta exsits
+		while(i < tas.size())
+		{
+			if (tas.get(i).name == p)
+			{
+				found = true;
+			}
+			i++;
+		}
+		// if not add the ta
+		if (found == false)
+		{
+			TA t = new TA();
+			t.name = p;
+			tas.add(t);
+		}
 	}
 
 	@Override
@@ -108,8 +134,26 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_instructor(String p) {
-		
-	}
+		boolean found = false;
+		int i = 0;
+		// checks if the instructor exsits
+		while(i < instructors.size())
+		{
+			if (instructors.get(i).name == p)
+			{
+				found = true;
+			}
+			i++;
+		}
+		// if not add the instructor
+		if (found == false)
+		{
+			Instructor in = new Instructor();
+			in.name = p;
+			instructors.add(in);
+		}
+	}		
+	
 
 	@Override
 	public boolean e_instructor(String p) {
@@ -118,8 +162,27 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_course(String p) {
-		
-	}
+		boolean found = false;
+		int i = 0;
+		// checks if the course exsits
+		while(i < courses.size())
+		{
+			if (courses.get(i).name == p)
+			{
+				found = true;
+			}
+			i++;
+		}
+		// if not add the course
+		if (found == false)
+		{
+			Course c = new Course();
+			c.name = p;
+			c.type = 0;
+			courses.add(c);
+		}
+	}		
+	
 
 	@Override
 	public boolean e_course(String p) {
@@ -128,7 +191,25 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_senior_course(String p) {
-		
+		boolean found = false;
+		int i = 0;
+		// checks if the course exsits
+		while(i < courses.size())
+		{
+			if (courses.get(i).name == p)
+			{
+				found = true;
+			}
+			i++;
+		}
+		// if not add the course
+		if (found == false)
+		{
+			Course c = new Course();
+			c.name = p;
+			c.type = 1;
+			courses.add(c);
+		}		
 	}
 
 	@Override
@@ -138,7 +219,25 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_grad_course(String p) {
-		
+		boolean found = false;
+		int i = 0;
+		// checks if the course exsits
+		while(i < courses.size())
+		{
+			if (courses.get(i).name == p)
+			{
+				found = true;
+			}
+			i++;
+		}
+		// if not add the course
+		if (found == false)
+		{
+			Course c = new Course();
+			c.name = p;
+			c.type = 2;
+			courses.add(c);
+		}
 	}
 
 	@Override
@@ -148,7 +247,7 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_timeslot(String p) {
-		
+		timeslots.add(p);
 	}
 
 	@Override
@@ -158,7 +257,28 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_lecture(String c, String lec) {
-		
+		boolean found = false;
+		int i = 0;
+		// checks if the course exsits
+		while(i < courses.size())
+		{
+			if (courses.get(i).name == c)
+			{
+				Course.lecTimeTuple l = new Course.lecTimeTuple(lec,"NA");
+				courses.get(i).lectures.add(l);
+				found = true;
+			}
+			i++;
+		}
+		// if not add the course
+		if (found == false)
+		{
+			Course co = new Course();
+			co.name = c;
+			Course.lecTimeTuple l = new Course.lecTimeTuple(lec,"NA");
+			co.lectures.add(l);
+			courses.add(co);
+		}
 	}
 
 	@Override
@@ -168,7 +288,43 @@ public class TAallocation extends PredicateReader implements TAallocationPredica
 
 	@Override
 	public void a_lab(String c, String lec, String lab) {
-		
+		boolean found = false;
+		int i = 0;
+		// checks if the course exsits
+		while(i < courses.size())
+		{
+			if (courses.get(i).name == c)
+			{
+				boolean foundLec = false;
+				int j = 0;
+				while(j < courses.get(i).lectures.size())
+				{	
+					if (courses.get(i).lectures.getLec() == lec)
+					{
+						foundLec = true;
+						labTimeTuple l = new labTimeTuple(lab,"NA");
+						courses.get(i).labs.add(l);
+					}
+					if
+					{
+					Course.lecTimeTuple l = new Course.lecTimeTuple(lec,"NA");
+					courses.get(i).lectures.add(l);
+					found = true;
+					j++;
+					}
+				}
+			}
+			i++;
+		}
+		// if not add the course
+		if (found == false)
+		{
+			Course co = new Course();
+			co.name = c;
+			Course.lecTimeTuple l = new Course.lecTimeTuple(lec,"NA");
+			co.lectures.add(l);
+			courses.add(co);
+		}
 	}
 
 	@Override
